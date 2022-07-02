@@ -1,0 +1,24 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>Blazing Trails Gallery</PageTitle>
+
+@if (trails == null) {
+    <p>Loading trails...</p>
+}
+else {
+    <div class="grid">
+        @foreach (var trail in trails) {
+            <TrailCard Trail="trail" />
+        }
+    </div>
+}
+
+@code {
+    IEnumerable<Trail>? trails;
+
+    protected override async Task OnInitializedAsync() {
+        trails = await Http.GetFromJsonAsync<IEnumerable<Trail>>("trails/trail-data.json");
+    }
+
+}
