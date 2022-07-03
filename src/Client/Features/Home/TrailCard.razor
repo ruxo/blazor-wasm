@@ -1,5 +1,5 @@
 ﻿<div class="card shadow" style="width: 18rem">
-    <img src="@Trail.Image" class="card-img-top" alt="@Trail.Name" />
+    <img src="@Trail.Image" class="card-img-top" alt="@Trail.Name"/>
     <div class="card-body">
         <h5 class="card-title">@Trail.Name</h5>
         <h6 class="card-subtitle mb-3 text-muted">
@@ -18,14 +18,16 @@
         </div>
         <button class="btn btn-primary" title="View" @onclick="@(() => OnSelected?.Invoke(Trail))">
             <i class="bg-info bi-binoculars"></i>
-		</button>
+        </button>
     </div>
 </div>
 
 @code {
-  [Parameter, EditorRequired]
-  public Trail Trail { get; set; } = default!;
 
-  [Parameter, EditorRequired]
-  public Action<Trail>? OnSelected { get; set; }
+    [Parameter, EditorRequired]
+    public Trail Trail { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public Action<Trail>? OnSelected { get; set; }
+
 }
