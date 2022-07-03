@@ -7,18 +7,25 @@
     <p>Loading trails...</p>
 }
 else {
+    <TrailDetails Trail="selectedTrail" />
     <div class="grid">
         @foreach (var trail in trails) {
-            <TrailCard Trail="trail" />
+            <TrailCard Trail="trail" OnSelected="HandleTrailSelected" />
         }
     </div>
 }
 
 @code {
-    IEnumerable<Trail>? trails;
+  IEnumerable<Trail>? trails;
+  Trail? selectedTrail;
 
-    protected override async Task OnInitializedAsync() {
-        trails = await Http.GetFromJsonAsync<IEnumerable<Trail>>("trails/trail-data.json");
-    }
+  protected override async Task OnInitializedAsync() {
+    trails = await Http.GetFromJsonAsync<IEnumerable<Trail>>("trails/trail-data.json");
+  }
 
+  void HandleTrailSelected(Trail trail)
+  {
+    selectedTrail = trail;
+    StateHasChanged();
+  }
 }

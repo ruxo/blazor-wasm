@@ -16,10 +16,16 @@
                 @Trail.Length km
             </span>
         </div>
+        <button class="btn btn-primary" title="View" @onclick="@(() => OnSelected?.Invoke(Trail))">
+            <i class="bg-info bi-binoculars"></i>
+		</button>
     </div>
 </div>
 
 @code {
-    [Parameter, EditorRequired]
-    public Trail Trail { get; set; } = default!;
+  [Parameter, EditorRequired]
+  public Trail Trail { get; set; } = default!;
+
+  [Parameter, EditorRequired]
+  public Action<Trail>? OnSelected { get; set; }
 }
