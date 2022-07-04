@@ -1,0 +1,56 @@
+﻿@page "/search/{SearchTerm}"
+@page "/search/{SearchTerm}/maxlength/{MaxLength:int}"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Search Trails - Blazing Trails</PageTitle>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Search</li>
+    </ol>
+</nav>
+
+<h3 class="mt-5 mb-4">Search results for "@SearchTerm"</h3>
+
+<SearchFilter SearchTerm="@SearchTerm" />
+
+@if (searchResults == null) {
+    <p>Loading search results...</p>
+}
+else {
+    <TrailDetails Trail="selectedTrail" />
+    
+    <div class="grid">
+        @foreach (var trail in searchResults) {
+            <TrailCard Trail="trail" OnSelected="t => selectedTrail = t"/>
+        }
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public string SearchTerm { get; set; } = "";
+    
+    [Parameter]
+    public int? MaxLength { get; set; }
+
+    IEnumerable<Trail>? searchResults;
+    IEnumerable<Trail> cachedResults = default!;
+    Trail? selectedTrail;
+
+    protected override async Task OnInitializedAsync() {
+        var allTrails = await Http.GetFromJsonAsync<IEnumerable<Trail>>("trails/trail-data.json");
+        cachedResults = from trail in allTrails
+                        where trail.Name.Contains(SearchTerm, StringComparison.CurrentCultureIgnoreCase)
+                              || trail.Location.Contains(SearchTerm, StringComparison.CurrentCultureIgnoreCase)
+                        select trail;
+    }
+
+    protected override void OnParametersSet() {
+        searchResults = MaxLength.HasValue ? cachedResults.Where(x => x.Length <= MaxLength) : cachedResults;
+    }
+
+}
