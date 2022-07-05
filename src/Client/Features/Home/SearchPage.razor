@@ -1,7 +1,6 @@
 ﻿@page "/search/{SearchTerm}"
 @page "/search/{SearchTerm}/maxlength/{MaxLength:int}"
 @inject HttpClient Http
-@inject NavigationManager NavManager
 
 <PageTitle>Search Trails - Blazing Trails</PageTitle>
 
@@ -14,7 +13,7 @@
 
 <h3 class="mt-5 mb-4">Search results for "@SearchTerm"</h3>
 
-<SearchFilter SearchTerm="@SearchTerm" />
+<SearchFilter SearchTerm="@SearchTerm" MaxLength="@(MaxLength ?? 0)" />
 
 @if (searchResults == null) {
     <p>Loading search results...</p>
@@ -34,8 +33,11 @@ else {
     [Parameter]
     public string SearchTerm { get; set; } = "";
     
-    [Parameter]
+    [Parameter, SupplyParameterFromQuery]
     public int? MaxLength { get; set; }
+    
+    [Parameter, SupplyParameterFromQuery]
+    public int? MaxTime { get; set; }
 
     IEnumerable<Trail>? searchResults;
     IEnumerable<Trail> cachedResults = default!;
@@ -50,7 +52,9 @@ else {
     }
 
     protected override void OnParametersSet() {
-        searchResults = MaxLength.HasValue ? cachedResults.Where(x => x.Length <= MaxLength) : cachedResults;
+        var filters = MaxLength.HasValue ? cachedResults.Where(x => x.Length <= MaxLength) : cachedResults;
+        filters = MaxTime.HasValue ? filters.Where(x => x.TimeInMinutes <= MaxTime * 60) : filters;
+        searchResults = filters;
     }
 
 }
