@@ -1,10 +1,12 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using FluentValidation.AspNetCore;
+using Wasm.Shared.Features.ManageTrails;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(typeof(TrailViewModel).Assembly));
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
