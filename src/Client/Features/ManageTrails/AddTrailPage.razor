@@ -1,4 +1,5 @@
 ﻿@page "/add-trail"
+@using Blazored.FluentValidation
 @using Wasm.Shared.Features.ManageTrails
 
 <PageTitle>Add Trail - Blazing Trails</PageTitle>
@@ -15,20 +16,24 @@
 <h3 class="mt-5 mb-4">Add a trail</h3>
 
 <EditForm Model="trail" OnValidSubmit="SubmitForm">
+    <FluentValidationValidator />
   <div class="mt-4 mb-5">
     <div class="row">
       <FormSection Title="Basic Details" HelpText="This information is used to identify the trail and can be searched to help hiker find it.">
         <FormFieldSet Width="col-6">
           <label for="trailName" class="font-weight-bold text-secondary">Name</label>
           <InputText id="trailName" class="form-control" @bind-Value="trail.Name" />
+          <ValidationMessage For="() => trail.Name" />
         </FormFieldSet>
         <FormFieldSet>
           <label for="trailDescription" class="font-weight-bold text-secondary">Description</label>
           <InputTextArea @bind-Value="trail.Description" rows="6" class="form-control" id="trailDescription" />
+          <ValidationMessage For="() => trail.Description" />
         </FormFieldSet>
         <FormFieldSet Width="col-6">
           <label for="trailLocation" class="font-weight-bold text-secondary">Location</label>
           <InputText @bind-Value="trail.Location" class="form-control" id="trailLocation" />
+          <ValidationMessage For="() => trail.Location" />
         </FormFieldSet>
       </FormSection>
 
@@ -37,6 +42,7 @@
         <FormFieldSet Width="col-3">
           <label for="trailLength" class="font-weight-bold text-secondary">Length (km)</label>
           <InputNumber id="trailLength" class="form-control" @bind-Value="trail.Length"></InputNumber>
+          <ValidationMessage For="() => trail.Length" />
         </FormFieldSet>
       </FormSection>
 
@@ -45,7 +51,9 @@
         @for (var i = 0; i < trail.Route.Count; ++i)
         {
           var routeInstruction = trail.Route[i];
-          routeInstruction.Stage = i + 1;
+          var stage = i + 1;
+          routeInstruction.Stage = stage;
+          var cid = $"rid-{stage}";
 
           <div class="row">
             <div class="col-2">
@@ -57,8 +65,9 @@
 
             <div class="col">
               <div class="form-group">
-                <label for="routeInstructionDescription" class="front-weight-bold text-secondary">Description</label>
-                <InputText id="routeInstructionDescription" class="form-control" @bind-Value="routeInstruction.Description" />
+                <label for="@cid" class="front-weight-bold text-secondary">Description</label>
+                <InputText id="@cid" class="form-control" @bind-Value="routeInstruction.Description" />
+                <ValidationMessage For="@(() => routeInstruction.Description)" />
               </div>
             </div>
             <div class="col-1 d-flex mt-3">
@@ -79,6 +88,7 @@
         <div class="row">
           <div class="col">
             <button type="button" class="btn btn-outline-primary" @onclick="() => trail.Route.Add(new())">Add Instruction</button>
+            <ValidationMessage For="() => trail.Route" />
           </div>
         </div>
       </FormSection>
@@ -95,6 +105,6 @@
 @code {
   TrailViewModel trail = new();
 
-  async Task SubmitForm() { }
+  Task SubmitForm() { return Task.CompletedTask; }
 
 }

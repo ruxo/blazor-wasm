@@ -38,7 +38,6 @@ public sealed class RouteInstructionValidator : AbstractValidator<TrailViewModel
 {
     public RouteInstructionValidator()
     {
-        RuleFor(x => x.Stage).NotEmpty().WithMessage("Please enter a stage");
         RuleFor(x => x.Description).NotEmpty().WithMessage("Please enter a description");
     }
 }
