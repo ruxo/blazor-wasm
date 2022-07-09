@@ -67,7 +67,7 @@
               <div class="form-group">
                 <label for="@cid" class="front-weight-bold text-secondary">Description</label>
                 <InputText id="@cid" class="form-control" @bind-Value="routeInstruction.Description" />
-                <ValidationMessage For="@(() => routeInstruction.Description)" />
+                <ValidationMessage For="() => routeInstruction.Description" />
               </div>
             </div>
             <div class="col-1 d-flex mt-3">
