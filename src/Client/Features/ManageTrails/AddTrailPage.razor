@@ -1,5 +1,6 @@
 ﻿@page "/add-trail"
 @using Blazored.FluentValidation
+@using Wasm.Client.Validation
 @using Wasm.Shared.Features.ManageTrails
 @inject IMediator Mediator
 
@@ -42,7 +43,7 @@
         </div>
     }
 
-<EditForm Model="trail" OnValidSubmit="SubmitForm">
+<EditForm EditContext="editContext" OnValidSubmit="SubmitForm">
     <FluentValidationValidator/>
     <div class="mt-4 mb-5">
         <div class="row">
@@ -135,9 +136,17 @@
 </EditForm>
 
 @code {
-    TrailViewModel trail = new();
-    string? errorMessage;
-    bool showMessage;
+  TrailViewModel trail = new();
+  string? errorMessage;
+  bool showMessage;
+
+  EditContext editContext = default!;
+
+  protected override void OnInitialized()
+  {
+      editContext = new (trail);
+      editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
+  }
 
     async Task SubmitForm() {
         var response = await Mediator.Send(new AddTrailRequest(trail));
