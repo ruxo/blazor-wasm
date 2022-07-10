@@ -1,4 +1,6 @@
 using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using Wasm.Server.Persistence;
 using Wasm.Shared.Features.ManageTrails;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(typeof(TrailViewModel).Assembly));
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<BlazingTrailsContext>(opts => opts.UseSqlite(builder.Configuration.GetConnectionString(nameof(BlazingTrailsContext))));
 
 var app = builder.Build();
 
