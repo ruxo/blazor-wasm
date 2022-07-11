@@ -1,7 +1,10 @@
 ﻿@page "/add-trail"
 @using Blazored.FluentValidation
+@using LanguageExt
 @using Wasm.Client.Validation
 @using Wasm.Shared.Features.ManageTrails
+@using Unit = LanguageExt.Unit
+@using System.Diagnostics
 @inject IMediator Mediator
 
 <PageTitle>Add Trail - Blazing Trails</PageTitle>
@@ -18,30 +21,28 @@
 <h3 class="mt-5 mb-4">Add a trail</h3>
 
 @if (showMessage)
-    @if (errorMessage is null)
-    {
-        <div class="alert alert-success" role="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16
+@if (errorMessage is null) {
+    <div class="alert alert-success" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16
      0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 
      0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 
-     0-.01-1.05z" />
-            </svg>
-            Your trail has been submitted successfully!
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-danger" role="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 
+     0-.01-1.05z"/>
+        </svg>
+        Your trail has been submitted successfully!
+    </div>
+}
+else {
+    <div class="alert alert-danger" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 
      0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 
      .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 
-     0 0 0-.708-.708L8 7.293 5.354 4.646z" />
-            </svg>
-            @errorMessage
-        </div>
-    }
+     0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+        </svg>
+        @errorMessage
+    </div>
+}
 
 <EditForm EditContext="editContext" OnValidSubmit="SubmitForm">
     <FluentValidationValidator/>
@@ -63,6 +64,10 @@
                     <InputText @bind-Value="trail.Location" class="form-control" id="trailLocation"/>
                     <ValidationMessage For="() => trail.Location"/>
                 </FormFieldSet>
+                <FormFieldSet>
+                    <label for="trailImage" class="font-weight-bold text-secondary">Image</label>
+                    <InputFile id="trailImage" accept=".png,.jpg,.jpeg" class="form-control-file" OnChange="LoadTrailImage"/>
+                </FormFieldSet>
             </FormSection>
 
             <FormSection Title="Difficulty" HelpText="Help other hikers out by telling them the length of the trail
@@ -75,7 +80,7 @@
 
                 <FormFieldSet Width="col-5">
                     <label for="trailTime" class="font-weight-bold text-secondary">Time</label>
-                    <InputTime id="trailTime" @bind-Value="trail.TimeInMinutes" />
+                    <InputTime id="trailTime" @bind-Value="trail.TimeInMinutes"/>
                     <ValidationMessage For="() => trail.TimeInMinutes"/>
                 </FormFieldSet>
             </FormSection>
@@ -142,26 +147,42 @@
 </EditForm>
 
 @code {
-  TrailViewModel trail = new();
-  string? errorMessage;
-  bool showMessage;
+    TrailViewModel trail = new();
+    string? errorMessage;
+    bool showMessage;
 
-  EditContext editContext = default!;
+    EditContext editContext = default!;
+    IBrowserFile? trailImage;
 
-  protected override void OnInitialized()
-  {
-      editContext = new (trail);
-      editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
-  }
+    protected override void OnInitialized() {
+        editContext = new(trail);
+        editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
+    }
 
     async Task SubmitForm() {
         var response = await Mediator.Send(new AddTrailRequest(trail));
-        showMessage = response.TrailId is null;
-        if (showMessage)
-            errorMessage = "There was a problem saving your trail.";
-        else {
-            errorMessage = null;
-            trail = new();
-        }
+        Either<string, Unit> error = response.TrailId is null ? "There was a problem saving your trail." : Unit.Default;
+        error = trailImage is null ? error : await error.BindAsync(_ => UploadImage(response.TrailId ?? throw new("Impossible")));
+        showMessage = error.IsLeft;
+        errorMessage = error.Match(_ => null, s => (string?) s);
+        error.IfRight(_ => ResetForm());
     }
+
+    void ResetForm() {
+        trail = new();
+        editContext = new (trail);
+        editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
+        trailImage = null;
+    }
+
+    async Task<Either<string,Unit>> UploadImage(int trailId) {
+        Debug.Assert(trailImage != null);
+        var imageUploadResponse = await Mediator.Send(new UploadTrailImageRequest(trailId, trailImage));
+
+        return imageUploadResponse.ImageName == null
+                   ? "You trail was saved, but there was a problem uploading the image."
+                   : Unit.Default;
+    }
+
+    void LoadTrailImage(InputFileChangeEventArgs e) => trailImage = e.File;
 }
