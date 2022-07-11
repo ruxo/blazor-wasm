@@ -164,7 +164,7 @@ else {
         Either<string, Unit> error = response.TrailId is null ? "There was a problem saving your trail." : Unit.Default;
         error = trailImage is null ? error : await error.BindAsync(_ => UploadImage(response.TrailId ?? throw new("Impossible")));
         showMessage = error.IsLeft;
-        errorMessage = error.Match(_ => null, s => (string?) s);
+        errorMessage = error.MatchUnsafe(_ => null, s => (string?) s);
         error.IfRight(_ => ResetForm());
     }
 
