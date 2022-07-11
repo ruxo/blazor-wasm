@@ -28,8 +28,9 @@ public sealed class TrailValidator : AbstractValidator<TrailViewModel>
         RuleFor(x => x.Name).NotEmpty().WithMessage("Please enter a name");
         RuleFor(x => x.Description).NotEmpty().WithMessage("Please enter a description");
         RuleFor(x => x.Location).NotEmpty().WithMessage("Please enter a location");
-        RuleFor(x => x.Length).NotEmpty().WithMessage("Please enter a length");
+        RuleFor(x => x.Length).GreaterThan(0);
         RuleFor(x => x.Route).NotEmpty().WithMessage("Please enter a route instruction");
+        RuleFor(x => x.TimeInMinutes).GreaterThan(0).WithName("Time");
         RuleForEach(x => x.Route).SetValidator(new RouteInstructionValidator());
     }
 }

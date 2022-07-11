@@ -72,6 +72,12 @@
                     <InputNumber id="trailLength" class="form-control" @bind-Value="trail.Length"></InputNumber>
                     <ValidationMessage For="() => trail.Length"/>
                 </FormFieldSet>
+
+                <FormFieldSet Width="col-5">
+                    <label for="trailTime" class="font-weight-bold text-secondary">Time</label>
+                    <InputTime id="trailTime" @bind-Value="trail.TimeInMinutes" />
+                    <ValidationMessage For="() => trail.TimeInMinutes"/>
+                </FormFieldSet>
             </FormSection>
 
             <FormSection Title="Route Instructions" HelpText="Route instructions are a guide for the trail.
