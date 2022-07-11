@@ -2,7 +2,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Wasm.Server.Persistence;
-using Wasm.Shared.Features.ManageTrails;
+using Wasm.Shared.Features.ManageTrails.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 

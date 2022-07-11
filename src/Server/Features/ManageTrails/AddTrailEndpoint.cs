@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Wasm.Server.Persistence;
 using Wasm.Server.Persistence.Entities;
-using Wasm.Shared.Features.ManageTrails;
+using Wasm.Shared.Features.ManageTrails.AddTrail;
 
 namespace Wasm.Server.Features.ManageTrails;
 

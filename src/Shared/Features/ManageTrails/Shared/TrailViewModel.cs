@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Wasm.Shared.Features.ManageTrails;
+namespace Wasm.Shared.Features.ManageTrails.Shared;
 
 public sealed class TrailViewModel
 {
@@ -12,7 +12,10 @@ public sealed class TrailViewModel
     public int TimeInMinutes { get; set; }
     public int Length { get; set; }
     public List<RouteInstruction> Route { get; set; } = new();
-    
+
+    public string? OriginalImage { get; set; }
+    public string? Image { get; set; }
+
     public sealed class RouteInstruction
     {
         public int Stage { get; set; }

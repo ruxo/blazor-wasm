@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Wasm.Shared.Features.ManageTrails;
+using Wasm.Shared.Features.ManageTrails.Shared;
 
 namespace Wasm.Client.Features.ManageTrails;
 

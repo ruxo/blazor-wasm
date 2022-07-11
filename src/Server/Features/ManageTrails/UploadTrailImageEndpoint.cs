@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Wasm.Server.Persistence;
-using Wasm.Shared.Features.ManageTrails;
+using Wasm.Shared.Features.ManageTrails.Shared;
 
 namespace Wasm.Server.Features.ManageTrails;
 

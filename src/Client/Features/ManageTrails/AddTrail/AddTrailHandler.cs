@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using System.Net.Http.Json;
-using Wasm.Shared.Features.ManageTrails;
+using Wasm.Shared.Features.ManageTrails.AddTrail;
 
 namespace Wasm.Client.Features.ManageTrails.AddTrail;
 
