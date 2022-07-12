@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Wasm.Shared.Features.ManageTrails.Shared;
 
-namespace Wasm.Client.Features.ManageTrails;
+namespace Wasm.Client.Features.ManageTrails.Shared;
 
 // ReSharper disable once UnusedType.Global
 public sealed class UploadTrailImageHandler : IRequestHandler<UploadTrailImageRequest, UploadTrailImageRequest.Response>

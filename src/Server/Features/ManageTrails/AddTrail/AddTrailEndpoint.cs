@@ -4,7 +4,7 @@ using Wasm.Server.Persistence;
 using Wasm.Server.Persistence.Entities;
 using Wasm.Shared.Features.ManageTrails.AddTrail;
 
-namespace Wasm.Server.Features.ManageTrails;
+namespace Wasm.Server.Features.ManageTrails.AddTrail;
 
 public sealed class AddTrailEndpoint : EndpointBaseAsync.WithRequest<AddTrailRequest>.WithResult<int>
 {

@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.Processing;
 using Wasm.Server.Persistence;
 using Wasm.Shared.Features.ManageTrails.Shared;
 
-namespace Wasm.Server.Features.ManageTrails;
+namespace Wasm.Server.Features.ManageTrails.Shared;
 
 public sealed class UploadTrailImageEndpoint : EndpointBaseAsync.WithRequest<int>.WithActionResult<string>
 {
@@ -33,6 +33,9 @@ public sealed class UploadTrailImageEndpoint : EndpointBaseAsync.WithRequest<int
         using var image = await Image.LoadAsync(file.OpenReadStream(), cancellationToken);
         image.Mutate(x => x.Resize(resizeOptions));
         await image.SaveAsJpegAsync(saveLocation, cancellationToken);
+        
+        if (trail.Image != null)
+            System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory(), "Images", trail.Image));
 
         trail.Image = filename;
         await db.SaveChangesAsync(cancellationToken);

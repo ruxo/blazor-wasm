@@ -1,3 +1,5 @@
+global using static LanguageExt.Prelude;
+
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;

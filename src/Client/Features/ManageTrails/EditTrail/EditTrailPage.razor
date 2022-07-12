@@ -41,12 +41,13 @@ else
     string? errorMessage;
 
     TrailViewModel trail = new();
-    
+
     [Parameter] public int TrailId { get; set; }
 
     protected override async Task OnInitializedAsync() {
         isLoading = true;
         var response = await Mediator.Send(new GetTrailRequest(TrailId));
+        Console.WriteLine(response);
         if (response.Trail is null) {
             errorMessage = "There was a problem loading the trail.";
             showMessage = true;

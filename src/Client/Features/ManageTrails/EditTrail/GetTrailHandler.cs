@@ -16,7 +16,7 @@ public sealed class GetTrailHandler : IRequestHandler<GetTrailRequest, GetTrailR
 
     public async Task<GetTrailRequest.Response> Handle(GetTrailRequest request, CancellationToken cancellationToken) {
         var uri = GetTrailRequest.RouteTemplate.Replace("{trailId}", request.TrailId.ToString());
-        var trail = await OptionalAsync(_ => http.GetFromJsonAsync<GetTrailRequest.Trail>(uri, cancellationToken: cancellationToken)).ToOption();
-        return new(trail.GetOrDefault());
+        var response = await OptionalAsync(_ => http.GetFromJsonAsync<GetTrailRequest.Response>(uri, cancellationToken: cancellationToken)).ToOption();
+        return new(response.Map(r => r.Trail).GetOrDefault());
     }
 }
