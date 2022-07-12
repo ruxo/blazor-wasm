@@ -1,7 +1,6 @@
 ﻿@page "/add-trail"
 @using LanguageExt
 @using Wasm.Shared.Features.ManageTrails.AddTrail
-@using Wasm.Shared.Features.ManageTrails.Shared
 @using Unit = LanguageExt.Unit
 @inject IMediator Mediator
 
@@ -36,19 +35,19 @@
 
     async Task SubmitNewTrail(TrailViewModel trail, IBrowserFile? image) {
         var response = await Mediator.Send(new AddTrailRequest(trail));
-        Either<string, Unit> error = response.TrailId is null ? "There was a problem saving your trail." : Unit.Default;
-        error = image is null ? error : await error.BindAsync(_ => UploadImage(response.TrailId ?? -1, image));
+        Either<string,Unit> error = response.TrailId is null ? "There was a problem saving your trail." : Unit.Default;
+        error = image is null ? error : await error.BindAsync(_ => UploadImage(response.TrailId ?? -1, image).MapAsync(_ => Unit.Default));
         showMessage = error.IsLeft;
         errorMessage = error.MatchUnsafe(_ => null, s => (string?) s);
         error.IfRight(_ => trailForm.ResetForm());
         StateHasChanged();
     }
 
-    async Task<Either<string,Unit>> UploadImage(int trailId, IBrowserFile trailImage) {
+    async Task<Either<string,string>> UploadImage(int trailId, IBrowserFile trailImage) {
         var imageUploadResponse = await Mediator.Send(new UploadTrailImageRequest(trailId, trailImage));
 
         return imageUploadResponse.ImageName == null
-                   ? "You trail was saved, but there was a problem uploading the image."
-                   : Unit.Default;
+                   ? Either<string, string>.Left("You trail was saved, but there was a problem uploading the image.")
+                   : Either<string, string>.Right(imageUploadResponse.ImageName);
     }
 }

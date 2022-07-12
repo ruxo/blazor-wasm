@@ -1,0 +1,98 @@
+﻿@page "/edit-trail/{TrailId:int}"
+@using Wasm.Shared.Features.ManageTrails.EditTrail
+@using LanguageExt
+@using Microsoft.AspNetCore.Components.Web
+@using Wasm.Client.Features.ManageTrails.Shared
+@using System.Diagnostics
+@inject IMediator Mediator
+
+<PageTitle>Edit Trail - Blazing Trails</PageTitle>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aira-current="page">Edit Trail</li>
+    </ol>
+</nav>
+
+@if (isLoading)
+{
+  <p>Loading trail...</p>
+}
+else
+{
+    <h3 class="mt-5 mb-4">Edit trail: @trail.Name</h3>
+
+    @if (showMessage) {
+        @if (errorMessage is null) {
+            <SuccessAlert Message="Your trail has been edited successfully!" />
+        }
+        else {
+            <ErrorAlert Message="@errorMessage" />
+        }
+    }
+
+    <TrailForm Trail="trail" OnSubmit="SubmitEditTrail" />
+}
+
+@code {
+    bool isLoading;
+    bool showMessage;
+    string? errorMessage;
+
+    TrailViewModel trail = new();
+    
+    [Parameter] public int TrailId { get; set; }
+
+    protected override async Task OnInitializedAsync() {
+        isLoading = true;
+        var response = await Mediator.Send(new GetTrailRequest(TrailId));
+        if (response.Trail is null) {
+            errorMessage = "There was a problem loading the trail.";
+            showMessage = true;
+        }
+        else
+            trail = new(){
+                Id = TrailId,
+                Name = response.Trail.Name,
+                Description = response.Trail.Description,
+                Location = response.Trail.Location,
+                Image = response.Trail.Image,
+                Length = response.Trail.Length,
+                TimeInMinutes = response.Trail.TimeInMinutes,
+                Route = response.Trail.RouteInstructions
+                                .Select(ri => new TrailViewModel.RouteInstruction{ Stage = ri.Stage, Description = ri.Description })
+                                .ToList()
+            };
+        isLoading = false;
+    }
+
+    async Task SubmitEditTrail(TrailViewModel trail, IBrowserFile? image) {
+        var response = await Mediator.Send(new EditTrailRequest(trail));
+        if (response.IsSuccess) {
+            var originalImage = this.trail.Image;
+            this.trail = trail.Clone();
+            if (trail.Image != originalImage) {
+                // TODO: remove original image from server
+            }
+            if (image != null) {
+                Debug.Assert(image != null);
+                var name = await UploadImage(trail.Id, image);
+                this.trail.Image = name.Match<string?>(n => n, _ => null);
+                errorMessage = name.Match<string?>(_ => null, e => e);
+            }
+        }
+        else
+            errorMessage = "There was a problem saving your trail.";
+        showMessage = true;
+        StateHasChanged();
+    }
+
+    async Task<Either<string,string>> UploadImage(int trailId, IBrowserFile trailImage) {
+        var imageUploadResponse = await Mediator.Send(new UploadTrailImageRequest(trailId, trailImage));
+
+        return imageUploadResponse.ImageName == null
+                   ? Either<string, string>.Left("You trail was saved, but there was a problem uploading the image.")
+                   : Either<string, string>.Right(imageUploadResponse.ImageName);
+    }
+}

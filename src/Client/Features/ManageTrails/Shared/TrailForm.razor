@@ -24,7 +24,17 @@
                 </FormFieldSet>
                 <FormFieldSet>
                     <label for="trailImage" class="font-weight-bold text-secondary">Image</label>
-                    <InputFile id="trailImage" accept=".png,.jpg,.jpeg" class="form-control-file" OnChange="LoadTrailImage"/>
+                    @if (trail.Image == null) {
+                        <InputFile id="trailImage" accept=".png,.jpg,.jpeg" class="form-control-file" OnChange="LoadTrailImage"/>
+                    }
+                    else {
+                        <div class="card bg-dark text-white">
+                            <img src="images/@trail.Image" />
+                            <div class="card-img-overlay">
+                                <button class="btn btn-primary btn-sm" @onclick="RemoveTrailImage">Remove</button>
+                            </div>
+                        </div>
+                    }
                 </FormFieldSet>
             </FormSection>
 
@@ -109,19 +119,38 @@
     TrailViewModel trail = default!;
     IBrowserFile? trailImage;
 
-    [Parameter]
-    public Func<TrailViewModel, IBrowserFile?, Task> OnSubmit { get; set; } = (_,_) => Task.CompletedTask;
+    [Parameter] public TrailViewModel? Trail { get; set; }
+    [Parameter] public Func<TrailViewModel, IBrowserFile?, Task> OnSubmit { get; set; } = (_,_) => Task.CompletedTask;
 
-    protected override void OnInitialized() => ResetForm();
-    
+    protected override void OnParametersSet() {
+        if (Trail == null)
+            ResetForm();
+        else {
+            trail = Trail.Clone();
+            ResetEditContext(trail);
+        }
+    }
+
     Task SubmitForm() => OnSubmit(trail, trailImage);
 
-    void LoadTrailImage(InputFileChangeEventArgs e) => trailImage = e.File;
+    void LoadTrailImage(InputFileChangeEventArgs e) {
+        trailImage = e.File;
+        trail.Image = e.File.Name;
+    }
+
+    void RemoveTrailImage() {
+        trailImage = null;
+        trail.Image = null;
+    }
 
     public void ResetForm() {
         trail = new();
-        editContext = new (trail);
-        editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
+        ResetEditContext(trail);
         trailImage = null;
+    }
+
+    void ResetEditContext(TrailViewModel vm) {
+        editContext = new (vm);
+        editContext.SetFieldCssClassProvider(new BootstrapCssClassProvider());
     }
 }

@@ -13,7 +13,6 @@ public sealed class TrailViewModel
     public int Length { get; set; }
     public List<RouteInstruction> Route { get; set; } = new();
 
-    public string? OriginalImage { get; set; }
     public string? Image { get; set; }
 
     public sealed class RouteInstruction
@@ -21,13 +20,20 @@ public sealed class TrailViewModel
         public int Stage { get; set; }
 
         public string Description { get; set; } = "";
+
+        public RouteInstruction Clone() => (RouteInstruction)MemberwiseClone();
+    }
+
+    public TrailViewModel Clone() {
+        var instance = (TrailViewModel) MemberwiseClone();
+        instance.Route = Route.Select(ri => ri.Clone()).ToList();
+        return instance;
     }
 }
 
 public sealed class TrailValidator : AbstractValidator<TrailViewModel>
 {
-    public TrailValidator()
-    {
+    public TrailValidator() {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Please enter a name");
         RuleFor(x => x.Description).NotEmpty().WithMessage("Please enter a description");
         RuleFor(x => x.Location).NotEmpty().WithMessage("Please enter a location");
@@ -40,8 +46,8 @@ public sealed class TrailValidator : AbstractValidator<TrailViewModel>
 
 public sealed class RouteInstructionValidator : AbstractValidator<TrailViewModel.RouteInstruction>
 {
-    public RouteInstructionValidator()
-    {
+    public RouteInstructionValidator() {
+        RuleFor(x => x.Stage).GreaterThan(0);
         RuleFor(x => x.Description).NotEmpty().WithMessage("Please enter a description");
     }
 }

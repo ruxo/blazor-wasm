@@ -10,5 +10,5 @@ public sealed record GetTrailRequest(int TrailId) : IRequest<GetTrailRequest.Res
 
     public sealed record Trail(int Id, string Name, string Location, string? Image, int TimeInMinutes, int Length, string Description,
                                IEnumerable<RouteInstruction> RouteInstructions);
-    public sealed record Response(Trail Trail);
+    public sealed record Response(Trail? Trail);
 }
